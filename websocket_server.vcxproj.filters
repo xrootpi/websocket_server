@@ -18,9 +18,15 @@
     <ClInclude Include="websocket_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="websocket_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="websocket_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="websocket_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

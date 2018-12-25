@@ -117,9 +117,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="websocket_helper.h" />
+    <ClInclude Include="websocket_server.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="websocket_helper.cpp" />
+    <ClCompile Include="websocket_server.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
