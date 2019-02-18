@@ -112,7 +112,7 @@ unsigned char*  websocket_helper::create_handshake_message(unsigned char * data)
 {
 	auto protocol = get_header_value(data, "Sec-WebSocket-Version: ");
 
-	if (atoi(reinterpret_cast<char *>(data)) >= 8)
+	if (atoi(reinterpret_cast<char *>(protocol)) >= 8)
 		return set_challenge_response(data);
 
 	return nullptr;
