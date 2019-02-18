@@ -18,6 +18,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\websocket_helper.h" />
+    <ClInclude Include="include\websocket_server.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\websocket_helper.cpp" />
+    <ClCompile Include="src\websocket_server.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{03596A84-01CB-4B2F-9CC7-9D5BA9AF107D}</ProjectGuid>
@@ -114,14 +122,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="websocket_helper.h" />
-    <ClInclude Include="websocket_server.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="websocket_helper.cpp" />
-    <ClCompile Include="websocket_server.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
