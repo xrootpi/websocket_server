@@ -11,13 +11,13 @@ m_client_acceptor(io_service)
 	try {
 		tcp_server server(ip, port, m_io_service, message_factory);
 		boost::thread t(boost::bind(static_cast<size_t(boost::asio::io_service::*)()>(&boost::asio::io_service::run), &m_io_service));
+		server.run();
 		t.join();
 	}
 	catch (boost::system::system_error& e)
 	{
 	}
 }
-
 
 websocket_server::~websocket_server()
 {
