@@ -1,4 +1,4 @@
-#include "websocket_server.h"
+#include "websocket_server/websocket_server.h"
 
 websocket_server::websocket_server(char *ip, int port, boost::asio::io_service& io_service, message_factory* message_factory) : websocket_helper(),
 m_io_service(io_service),
