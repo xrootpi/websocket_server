@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\websocket_helper.h" />
-    <ClInclude Include="include\websocket_server.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="src\websocket_helper.cpp" />
     <ClCompile Include="src\websocket_server.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\websocket_server\websocket_helper.h" />
+    <ClInclude Include="include\websocket_server\websocket_server.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
