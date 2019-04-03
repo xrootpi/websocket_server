@@ -14,5 +14,6 @@ public:
 	int _ping_interval;
 	message_factory* _message_factory;
 	void send_to_client(char * message_to_send);
+	tcp_server *tcpserver;
 };
 

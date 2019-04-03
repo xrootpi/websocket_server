@@ -7,11 +7,13 @@ m_client_acceptor(io_service)
 	_is_mask = false;
 	_ping_interval = 50;
 	_message_factory = message_factory;
+
+	//message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1));
 	message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1));
 	try {
-		tcp_server server(ip, port, m_io_service, message_factory);
+		tcpserver = new tcp_server(ip, port, m_io_service, message_factory);
 		boost::thread t(boost::bind(static_cast<size_t(boost::asio::io_service::*)()>(&boost::asio::io_service::run), &m_io_service));
-		server.run();
+		tcpserver->run();
 		t.join();
 	}
 	catch (boost::system::system_error& e)
@@ -27,8 +29,18 @@ int websocket_server::websocket_message_handler(unsigned char *message)
 {
 	if (message[0] != 129)
 	{
-		create_handshake_message(message);
+	//	tcpserver->broadcast(create_handshake_message(message));
+		_message_factory->write_message(create_handshake_message(message));
+		DEBUG_CONSOLE(message);
 		return 0;
+	} else
+	{
+		unsigned char data[1024];
+		
+		int len = parse_masked_data(key, message, &data[0]);
+		//unsigned char *temp = new unsigned char[len];
+		//un_mask_data(key,&data[0],len, &data[0]);
+		DEBUG_CONSOLE(data);
 	}
 	return 0;
 }
@@ -39,7 +51,7 @@ void websocket_server::send_to_client(char * message_to_send)
 	unsigned char* buffer_to_send = 0;
 	websocket_framing(m_tx_buffer, buffer_to_send);
 
-	_message_factory->on_send(buffer_to_send);
+	//_message_factory->on_send(buffer_to_send);
 	
 	m_tx_buffer.clear();
 }

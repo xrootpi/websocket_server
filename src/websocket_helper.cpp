@@ -1,4 +1,5 @@
 #include "websocket_server/websocket_helper.h"
+#include <iostream>
 
 websocket_helper::websocket_helper()
 = default;
@@ -7,51 +8,48 @@ websocket_helper::websocket_helper()
 websocket_helper::~websocket_helper()
 = default;
 
-int websocket_helper::parse_masked_data(unsigned char * key, const unsigned char * data, unsigned char * actual_data)
+int websocket_helper::parse_masked_data(unsigned char * key, const unsigned char * masked_data, unsigned char * un_masked_data)
 {
-	auto len = data[1] - 0x80;
+	auto len = masked_data[1] - 0x80;
 	unsigned char mask_key[4];
 	if (len<126) {
 		for (auto i = 0; i<4; i++){
-			key[i] = data[2 + i];
+			key[i] = masked_data[2 + i];
 			mask_key[i] = key[i];
 		}
 
 		for (auto i = 0; i<len; i++)
-			actual_data[i] = data[6 + i];
+			un_masked_data[i] = masked_data[6 + i];
 	}
 	else if (len == 126) {
 		unsigned int len_2 = 0;
-		len_2 = data[2];
+		len_2 = masked_data[2];
 		len_2 = len_2 << 8;
-		len_2 = len_2 + data[3];
+		len_2 = len_2 + masked_data[3];
 
 		for (auto i = 0; i<4; i++){
-			key[i] = data[4 + i];
+			key[i] = masked_data[4 + i];
 			mask_key[i] = key[i];
 		}
 
 		for (auto i = 0; i<static_cast<int>(len_2); i++)
-			actual_data[i] = data[8 + i];
+			un_masked_data[i] = masked_data[8 + i];
 
 		len = len_2;
 	}
 	else if (len == 127) {
 		//TODO: handled for packet length > 127
 	}
-	return static_cast<int>(len);
-}
 
-void websocket_helper::un_mask_data(const unsigned char * key, const unsigned char * data, const int len, unsigned char * un_masked_data)
-{
 	auto j = 0;
 
 	for (auto i = 0; i<len; i++) {
 		j = i % 4;
-		un_masked_data[i] = data[i] ^ key[j];
+		un_masked_data[i] = un_masked_data[i] ^ key[j];
 	}
 
 	un_masked_data[len] = '\0';
+	return static_cast<int>(len);
 }
 
 void websocket_helper::websocket_framing(std::string m_tx_buffer, unsigned char * buffer_to_send)
@@ -110,9 +108,7 @@ void websocket_helper::websocket_framing(std::string m_tx_buffer, unsigned char 
 
 unsigned char*  websocket_helper::create_handshake_message(unsigned char * data)
 {
-	auto protocol = get_header_value(data, "Sec-WebSocket-Version: ");
-
-	if (atoi(reinterpret_cast<char *>(protocol)) >= 8)
+	if (atoi(reinterpret_cast<char *>(get_header_value(data, "Sec-WebSocket-Version: "))) >= 8)
 		return set_challenge_response(data);
 
 	return nullptr;
@@ -121,39 +117,35 @@ unsigned char*  websocket_helper::create_handshake_message(unsigned char * data)
 unsigned char* websocket_helper::set_challenge_response(unsigned char * data)
 {
 	const auto key = get_header_value(data, "Sec-WebSocket-Key: ");
+	this->key = key;
 	const auto protocol = get_header_value(data, "Sec-WebSocket-Protocol: ");
-
 	const auto sss = std::string(reinterpret_cast<char*>(key))+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-	auto* m_buf2 = string_to_char_array(sss);
 
 	boost::uuids::detail::sha1 sha;
-	sha.process_bytes(m_buf2, 60);
-	unsigned int digest[5];
-	sha.get_digest(digest);
+	sha.process_bytes(sss.c_str(), sss.size());
+	unsigned int hash[5] ={0};
+	sha.get_digest(hash);
+	
 	auto c = 0;
 	
-	unsigned char hash[20];
-	for (auto i : digest)
+	unsigned char digest[21]={0};
+	for (auto i : hash)
 	{
-		hash[c++] = (i & 0xff000000) >> 24;
-		hash[c++] = (i & 0xff0000) >> 16;
-		hash[c++] = (i & 0xff00) >> 8;
-		hash[c++] = i & 0xff;
-	}
+		digest[c++] = (i & 0xff000000) >> 24;
+		digest[c++] = (i & 0xff0000) >> 16;
+		digest[c++] = (i & 0xff00) >> 8;
+		digest[c++] = i & 0xff;
+	} 
 	
-	encode64(m_buf2);
-
 	std::stringstream ss;
 	ss << "HTTP/1.1 101 Switching Protocols\r\n";
 	ss << "Upgrade: websocket\r\n";
 	ss << "Connection: Upgrade\r\n";
-	ss << "Sec-WebSocket-Accept: " << m_buf2 <<"\r\n";
-	ss << "Sec-WebSocket-Protocol: "<< protocol;
-	ss << "\r\n\r\n";
+	ss << "Sec-WebSocket-Accept: " << encode64(reinterpret_cast<unsigned char*>(digest)) <<"\r\n";
+	ss << "Sec-WebSocket-Protocol: " << protocol <<"\r\n";
+	ss << "\r\n";
 	
-	auto g = ss.str();
-
-	return reinterpret_cast<unsigned char*>(&g[0]);
+	return string_to_char_array(ss.str());
 }
 
 unsigned char* websocket_helper::get_header_value(unsigned char* data, const std::string& header)
