@@ -9,7 +9,7 @@ m_client_acceptor(io_service)
 	_message_factory = message_factory;
 
 	//message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1));
-	message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1));
+	message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1, _2));
 	try {
 		tcpserver = new tcp_server(ip, port, m_io_service, message_factory);
 		boost::thread t(boost::bind(static_cast<size_t(boost::asio::io_service::*)()>(&boost::asio::io_service::run), &m_io_service));
@@ -25,12 +25,12 @@ websocket_server::~websocket_server()
 {
 }
 
-int websocket_server::websocket_message_handler(unsigned char *message)
+int websocket_server::websocket_message_handler(unsigned char *message, size_t connection)
 {
 	if (message[0] != 129)
 	{
 	//	tcpserver->broadcast(create_handshake_message(message));
-		_message_factory->write_message(create_handshake_message(message));
+		_message_factory->write_message(create_handshake_message(message), connection);
 		DEBUG_CONSOLE(message);
 		return 0;
 	} else
