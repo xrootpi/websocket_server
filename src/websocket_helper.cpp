@@ -142,7 +142,10 @@ unsigned char* websocket_helper::set_challenge_response(unsigned char * data)
 	ss << "Upgrade: websocket\r\n";
 	ss << "Connection: Upgrade\r\n";
 	ss << "Sec-WebSocket-Accept: " << encode64(reinterpret_cast<unsigned char*>(digest)) <<"\r\n";
-	ss << "Sec-WebSocket-Protocol: " << protocol <<"\r\n";
+
+	if(protocol[0] != '\0')
+		ss << "Sec-WebSocket-Protocol: " << protocol <<"\r\n";
+
 	ss << "\r\n";
 	
 	return string_to_char_array(ss.str());

@@ -27,20 +27,25 @@ websocket_server::~websocket_server()
 
 int websocket_server::websocket_message_handler(unsigned char *message, size_t connection)
 {
-	if (message[0] != 129)
+	if (message[0] == 129)
 	{
-	//	tcpserver->broadcast(create_handshake_message(message));
-		_message_factory->write_message(create_handshake_message(message), connection);
-		DEBUG_CONSOLE(message);
-		return 0;
-	} else
-	{
+	
 		unsigned char data[1024];
-		
+
 		int len = parse_masked_data(key, message, &data[0]);
 		//unsigned char *temp = new unsigned char[len];
 		//un_mask_data(key,&data[0],len, &data[0]);
 		DEBUG_CONSOLE(data);
+	}
+	else if (message[0] == 136)
+	{
+		DEBUG_CONSOLE("Closing Connection");
+	}
+	else
+	{
+		//	tcpserver->broadcast(create_handshake_message(message));
+		_message_factory->write_message(create_handshake_message(message), connection);
+		DEBUG_CONSOLE(message);
 	}
 	return 0;
 }
