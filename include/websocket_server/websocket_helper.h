@@ -13,7 +13,7 @@ public:
 	websocket_helper();
 	virtual ~websocket_helper();
 	int parse_masked_data(unsigned char * key, const unsigned char * masked_data, unsigned char * un_masked_data);
-	void websocket_framing(std::string m_tx_buffer, unsigned char* buffer_to_send);
+	void websocket_framing(std::string m_tx_buffer, unsigned char* buffer_to_send, unsigned char opcode =0x01);
 	unsigned char* create_handshake_message(unsigned char* data);
 	unsigned char* key;
 private:

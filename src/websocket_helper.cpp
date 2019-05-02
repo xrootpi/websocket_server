@@ -52,13 +52,13 @@ int websocket_helper::parse_masked_data(unsigned char * key, const unsigned char
 	return static_cast<int>(len);
 }
 
-void websocket_helper::websocket_framing(std::string m_tx_buffer, unsigned char * buffer_to_send)
+void websocket_helper::websocket_framing(std::string m_tx_buffer, unsigned char* buffer_to_send, unsigned char opcode)
 {
 	const auto fin = true; // is final frame?
 	const auto rsv_1 = false; // Extension Related Must be Zero Unless Extended
 	const auto rsv_2 = false; // Extension Related Must be Zero Unless Extended
 	const auto rsv_3 = false; // Extension Related Must be Zero Unless Extended
-	const unsigned char opcode = 0x01; //opcode leave it as 0x01, for text frame
+	//unsigned char opcode = 0x01; //opcode leave it as 0x01, for text frame
 	const auto mask = false; // Yes! unless client wants it masked
 	unsigned int payload_len = 0;
 	const auto m_tx_buffer_size = m_tx_buffer.size();

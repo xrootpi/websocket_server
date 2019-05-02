@@ -8,7 +8,6 @@ m_client_acceptor(io_service)
 	_ping_interval = 50;
 	_message_factory = message_factory;
 
-	//message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1));
 	message_factory->on_receive.connect(boost::bind(&websocket_server::websocket_message_handler, this, _1, _2));
 	try {
 		tcpserver = new tcp_server(ip, port, m_io_service, message_factory);
@@ -29,21 +28,19 @@ int websocket_server::websocket_message_handler(unsigned char *message, size_t c
 {
 	if (message[0] == 129)
 	{
-	
 		unsigned char data[1024];
-
 		int len = parse_masked_data(key, message, &data[0]);
-		//unsigned char *temp = new unsigned char[len];
-		//un_mask_data(key,&data[0],len, &data[0]);
 		DEBUG_CONSOLE(data);
 	}
 	else if (message[0] == 136)
 	{
 		DEBUG_CONSOLE("Closing Connection");
+		unsigned char* test = new unsigned char[4096];
+		websocket_framing("1000", test, 0x88);
+		_message_factory->write_message(test, connection);
 	}
 	else
 	{
-		//	tcpserver->broadcast(create_handshake_message(message));
 		_message_factory->write_message(create_handshake_message(message), connection);
 		DEBUG_CONSOLE(message);
 	}
@@ -55,8 +52,5 @@ void websocket_server::send_to_client(char * message_to_send)
 	m_tx_buffer.append(message_to_send, strlen(message_to_send));
 	unsigned char* buffer_to_send = 0;
 	websocket_framing(m_tx_buffer, buffer_to_send);
-
-	//_message_factory->on_send(buffer_to_send);
-	
 	m_tx_buffer.clear();
 }
